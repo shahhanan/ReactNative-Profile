@@ -44,7 +44,7 @@ const styles = StyleSheet.create({
   },
 });
 
-export default class App extends React.Component {
+export default class IntroScreen extends React.Component {
   _onDone = () => {
     this.props.navigation.navigate('Home')
   }
@@ -88,3 +88,6 @@ export default class App extends React.Component {
     );
   }
 }
+IntroScreen.navigationOptions = {
+  header: null,
+};
