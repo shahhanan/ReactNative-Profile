@@ -1,8 +1,9 @@
 import React from 'react';
 import { ScrollView, StyleSheet } from 'react-native';
 import { ExpoLinksView } from '@expo/samples';
+import { connect } from "react-redux";
 
-export default class LinksScreen extends React.Component {
+class RewiewsScreen extends React.Component {
   render(){
   return (
     <ScrollView style={styles.container}>
@@ -15,8 +16,9 @@ export default class LinksScreen extends React.Component {
 const mapStateToProps = ({ FormDetails }) => ({
   Rewiews: FormDetails.RewiewsData,
 });
+export default connect(mapStateToProps)(RewiewsScreen);
 
-LinksScreen.navigationOptions = {
+RewiewsScreen.navigationOptions = {
   header: null,
 };
 

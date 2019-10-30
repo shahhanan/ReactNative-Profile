@@ -1,6 +1,5 @@
 import { LinearGradient } from "expo-linear-gradient";
 import React, { Component } from "react";
-import { connect } from "react-redux";
 import axios from "axios";
 import {
   Image,
@@ -20,6 +19,7 @@ export default class HomeScreen extends Component {
   constructor() {
     super();
     this.state = {
+      Loading: false,
       Name: "",
       Email: "",
       Message: ""
@@ -39,6 +39,7 @@ export default class HomeScreen extends Component {
   }
   validateEmail = email => {};
   handleSubmitButton = () => {
+    this.setState({ Loading: true });
     const formData = {
       Name: this.state.Name,
       Email: this.state.Email,
@@ -50,52 +51,68 @@ export default class HomeScreen extends Component {
         JSON.stringify(formData)
       )
       .then(Response => {
+        this.setState({ Loading: false });
         console.log(Response.data);
       })
       .catch(error => {
+        this.setState({ Loading: false });
         console.log(error);
       });
   };
   render() {
     return (
       <View style={styles.container}>
-        <LinearGradient
-          colors={["#d19b28", "#20b0a9", "#188f89"]}
-          style={styles.LinearGradient}
-        >
-          <Image style={styles.myImage} source={require("../assets/h2.jpg")} />
-          <Text style={styles.textForName}>Please Enter your Details</Text>
-          <View style={styles.detailsContainer}>
-            <TextInput
-              placeholder="Name"
-              onChangeText={text => this.setState({ Name: text })}
-              selectionColor={"#bdc2c9"}
-              style={styles.textBoxForName}
-            ></TextInput>
-            <TextInput
-              placeholder="Your Email Address"
-              onBlur={email => this.validateEmail()}
-              onChangeText={text => this.setState({ Email: text })}
-              selectionColor={"#bdc2c9"}
-              style={styles.textBoxForEmail}
-            ></TextInput>
-            <TextInput
-              placeholder="Message"
-              multiline={true}
-              numberOfLines={4}
-              onChangeText={text => this.setState({ Message: text })}
-              selectionColor={"#bdc2c9"}
-              style={styles.textBoxForMessage}
-            ></TextInput>
-            <View style={styles.Submitbuttom}>
-              <Button
-                title="Submit"
-                color="#ed8e53"
-                onPress={() => this.handleSubmitButton()}
-              ></Button>
-            </View>
+        {this.state.Loading ? (
+          <View
+            style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+          >
+            <Image
+              style={styles.LoadingImage}
+              source={require("../assets/loading.gif")}
+            />
           </View>
-        </LinearGradient>
+        ) : (
+          <LinearGradient
+            colors={["#d19b28", "#20b0a9", "#188f89"]}
+            style={styles.LinearGradient}
+          >
+            <Image
+              style={styles.myImage}
+              source={require("../assets/h2.jpg")}
+            />
+            <Text style={styles.textForName}>Please Enter your Details</Text>
+            <View style={styles.detailsContainer}>
+              <TextInput
+                placeholder="Name"
+                onChangeText={text => this.setState({ Name: text })}
+                selectionColor={"#bdc2c9"}
+                style={styles.textBoxForName}
+              ></TextInput>
+              <TextInput
+                placeholder="Your Email Address"
+                onBlur={email => this.validateEmail()}
+                onChangeText={text => this.setState({ Email: text })}
+                selectionColor={"#bdc2c9"}
+                style={styles.textBoxForEmail}
+              ></TextInput>
+              <TextInput
+                placeholder="Message"
+                multiline={true}
+                numberOfLines={4}
+                onChangeText={text => this.setState({ Message: text })}
+                selectionColor={"#bdc2c9"}
+                style={styles.textBoxForMessage}
+              ></TextInput>
+              <View style={styles.Submitbuttom}>
+                <Button
+                  title="Submit"
+                  color="#ed8e53"
+                  onPress={() => this.handleSubmitButton()}
+                ></Button>
+              </View>
+            </View>
+          </LinearGradient>
+        )}
       </View>
     );
   }
@@ -106,6 +123,10 @@ HomeScreen.navigationOptions = {
 };
 
 const styles = StyleSheet.create({
+  LoadingImage: {
+    width: 300,
+    height: 300
+  },
   LinearGradient: {
     flex: 1,
     position: "relative",

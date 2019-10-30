@@ -1,5 +1,5 @@
 import { combineReducers } from "redux";
-import FormDetails from "./homeReducers";
+import FormDetails from "./FormReducers";
 
 const rootReducer = combineReducers({
     FormDetails
