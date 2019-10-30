@@ -1,0 +1,4 @@
+export const GET_HOME_FORM_DETAILS = "GET_HOME_FORM_DETAILS";
+
+
+

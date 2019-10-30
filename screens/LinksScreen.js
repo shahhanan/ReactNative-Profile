@@ -2,20 +2,22 @@ import React from 'react';
 import { ScrollView, StyleSheet } from 'react-native';
 import { ExpoLinksView } from '@expo/samples';
 
-export default function LinksScreen() {
+export default class LinksScreen extends React.Component {
+  render(){
   return (
     <ScrollView style={styles.container}>
-      {/**
-       * Go ahead and delete ExpoLinksView and replace it with your content;
-       * we just wanted to provide you with some helpful links.
-       */}
+      {/***/}
       <ExpoLinksView />
     </ScrollView>
-  );
+  )}
 }
 
+const mapStateToProps = ({ FormDetails }) => ({
+  Rewiews: FormDetails.RewiewsData,
+});
+
 LinksScreen.navigationOptions = {
-  title: 'Links',
+  header: null,
 };
 
 const styles = StyleSheet.create({
