@@ -1,6 +1,8 @@
 import { LinearGradient } from "expo-linear-gradient";
 import React, { Component } from "react";
 import axios from "axios";
+import OrientationLoadingOverlay from "react-native-orientation-loading-overlay";
+import { showMessage, hideMessage } from "react-native-flash-message";
 import {
   Image,
   Platform,
@@ -21,8 +23,12 @@ export default class HomeScreen extends Component {
     this.state = {
       Loading: false,
       Name: "",
+      NameValidation: false,
       Email: "",
-      Message: ""
+      EmailValidation: false,
+      Message: "",
+      MessageValidation: false,
+      formValidationStatus: false
     };
   }
   componentDidMount() {
@@ -37,7 +43,69 @@ export default class HomeScreen extends Component {
     ToastAndroid.show("Can't go Back!", ToastAndroid.SHORT);
     return true;
   }
-  validateEmail = email => {};
+  checkFormValidationStatus = () =>{
+    let { NameValidation, EmailValidation, MessageValidation } = this.state;
+    if(NameValidation == false || EmailValidation == false || MessageValidation == false){
+      this.setState({formValidationStatus : false})
+    }else{
+      this.setState({formValidationStatus : true})
+    }
+  }
+  inputPress = (text, type) => {
+    let newState = this.state;
+    newState[type] = text
+    this.setState(newState)
+    if(type == "Name"){
+      this.nameValidation()
+    }
+    else if(type == "Email"){
+      this.emailValidation()
+    }
+    else{
+      this.messageValidation()
+    }
+    this.checkFormValidationStatus()
+  };
+  nameValidation  = () => {
+    let Name = this.state.Name;
+    if(Name == ""){
+      this.setState({ NameValidation: false });
+      showMessage({
+        message: "Please Enter your Name",
+        type: "danger"
+      });
+    }
+    else{
+      this.setState({ NameValidation: true });
+    }
+  }
+  emailValidation = () =>{
+    let Email = this.state.Email;
+    let reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/ ;
+      if(reg.test(Email) === false){
+        this.setState({ EmailValidation: false });
+        showMessage({
+          message: "Please Enter Valid Email",
+          type: "danger"
+        });
+      }
+      else{
+        this.setState({ EmailValidation: true });
+      }
+  }
+  messageValidation = () =>{
+    let Message = this.state.Message;
+    if(Message == ""){
+      this.setState({ MessageValidation: false });
+      showMessage({
+        message: "Please Enter Message",
+        type: "danger"
+      });
+    }
+    else{
+      this.setState({ MessageValidation: true });
+    }
+  }
   handleSubmitButton = () => {
     this.setState({ Loading: true });
     const formData = {
@@ -51,68 +119,82 @@ export default class HomeScreen extends Component {
         JSON.stringify(formData)
       )
       .then(Response => {
-        this.setState({ Loading: false });
-        console.log(Response.data);
+        this.setState({ Loading: false, Name: "", Email: "", Message: "" });
+        showMessage({
+          message: "Details Saved Successfully",
+          type: "info"
+        });
       })
       .catch(error => {
         this.setState({ Loading: false });
-        console.log(error);
+        showMessage({
+          message: "OOPS Something went wrong. Please Try Again!!!",
+          type: "info"
+        });
       });
   };
   render() {
     return (
       <View style={styles.container}>
-        {this.state.Loading ? (
-          <View
-            style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
-          >
-            <Image
-              style={styles.LoadingImage}
-              source={require("../assets/loading.gif")}
-            />
-          </View>
-        ) : (
-          <LinearGradient
-            colors={["#d19b28", "#20b0a9", "#188f89"]}
-            style={styles.LinearGradient}
-          >
-            <Image
-              style={styles.myImage}
-              source={require("../assets/h2.jpg")}
-            />
-            <Text style={styles.textForName}>Please Enter your Details</Text>
-            <View style={styles.detailsContainer}>
+        <LinearGradient
+          colors={["#d19b28", "#20b0a9", "#188f89"]}
+          style={styles.LinearGradient}
+        >
+          <Image style={styles.myImage} source={require("../assets/h2.jpg")} />
+          <Text style={styles.textForName}>Please Enter your Details</Text>
+          <View style={styles.detailsContainer}>
               <TextInput
                 placeholder="Name"
-                onChangeText={text => this.setState({ Name: text })}
+                onChangeText={text => this.inputPress(text, "Name")}
+                value={this.state.Name}
                 selectionColor={"#bdc2c9"}
-                style={styles.textBoxForName}
+                onBlur={() => this.nameValidation()}
+                style={[
+                  styles.textBoxForName,
+                  this.state.NameValidation ? null : styles.Error
+                ]}
               ></TextInput>
-              <TextInput
-                placeholder="Your Email Address"
-                onBlur={email => this.validateEmail()}
-                onChangeText={text => this.setState({ Email: text })}
-                selectionColor={"#bdc2c9"}
-                style={styles.textBoxForEmail}
-              ></TextInput>
-              <TextInput
-                placeholder="Message"
-                multiline={true}
-                numberOfLines={4}
-                onChangeText={text => this.setState({ Message: text })}
-                selectionColor={"#bdc2c9"}
-                style={styles.textBoxForMessage}
-              ></TextInput>
-              <View style={styles.Submitbuttom}>
-                <Button
-                  title="Submit"
-                  color="#ed8e53"
-                  onPress={() => this.handleSubmitButton()}
-                ></Button>
-              </View>
+            <TextInput
+              placeholder="Your Email Address"
+              onChangeText={text => this.inputPress(text, "Email")}
+              value={this.state.Email}
+              onBlur={() => this.emailValidation()}
+              selectionColor={"#bdc2c9"}
+              style={[
+                styles.textBoxForEmail,
+                this.state.EmailValidation ? null : styles.Error
+              ]}
+            ></TextInput>
+            <TextInput
+              placeholder="Message"
+              multiline={true}
+              numberOfLines={4}
+              value={this.state.Message}
+              onChangeText={text => this.inputPress(text, "Message")}
+              onBlur={() => this.messageValidation()}
+              selectionColor={"#bdc2c9"}
+              style={[
+                styles.textBoxForMessage,
+                this.state.MessageValidation ? null : styles.Error
+              ]}
+            ></TextInput>
+            <View style={styles.Submitbuttom}>
+              <Button
+                title="Submit"
+                color="#ed8e53"
+                onPress={() => this.handleSubmitButton()}
+                disabled={!this.state.formValidationStatus}
+              ></Button>
             </View>
-          </LinearGradient>
-        )}
+          </View>
+        </LinearGradient>
+        <OrientationLoadingOverlay
+          visible={this.state.Loading}
+          color="white"
+          indicatorSize="large"
+          messageFontSize={24}
+          message="Please Wait..."
+        />
       </View>
     );
   }
@@ -160,8 +242,6 @@ const styles = StyleSheet.create({
     width: 280,
     height: 50,
     backgroundColor: "rgba(1,1,1,0.3)",
-    borderBottomColor: "#bdc2c9",
-    borderBottomWidth: 2,
     marginBottom: 20,
     borderRadius: 5,
     fontSize: 20,
@@ -172,8 +252,6 @@ const styles = StyleSheet.create({
     width: 280,
     height: 50,
     backgroundColor: "rgba(1,1,1,0.3)",
-    borderBottomColor: "#bdc2c9",
-    borderBottomWidth: 2,
     marginBottom: 20,
     borderRadius: 5,
     fontSize: 20,
@@ -184,8 +262,6 @@ const styles = StyleSheet.create({
     width: 280,
     height: 150,
     backgroundColor: "rgba(1,1,1,0.3)",
-    borderBottomColor: "#bdc2c9",
-    borderBottomWidth: 2,
     marginBottom: 20,
     borderRadius: 5,
     fontSize: 20,
@@ -203,5 +279,9 @@ const styles = StyleSheet.create({
     height: 30,
     marginBottom: 10,
     borderRadius: 5
+  },
+  Error: {
+    borderWidth: 3,
+    borderColor: "#d19b28"
   }
 });
